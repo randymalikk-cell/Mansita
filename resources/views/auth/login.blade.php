@@ -1,47 +1,166 @@
-<x-guest-layout>
-    <!-- Session Status -->
-    <x-auth-session-status class="mb-4" :status="session('status')" />
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Sistem Manajemen Pabrik Tahu</title>
 
-    <form method="POST" action="{{ route('login') }}">
-        @csrf
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 
-        <!-- Email Address -->
-        <div>
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autofocus autocomplete="username" />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
+    <style>
+        body {
+            background-color: #f5f5f5;
+        }
+        .left-panel {
+            background: linear-gradient(160deg, #0c8f53, #0aa067);
+            height: 100vh;
+            color: white;
+            padding: 60px;
+
+            display: flex;
+            flex-direction: column;
+            justify-content: center;   /* center vertikal */
+            align-items: center;        /* center horizontal */
+            text-align: center;
+        }
+
+        .left-panel h2 {
+            font-weight: 700;
+        }
+        .icon-box {
+            width: 80px;
+            height: 80px;
+            background: rgba(255, 255, 255, 0.25);
+            border-radius: 16px;
+
+            display: flex;
+            align-items: center;     /* center vertical */
+            justify-content: center; /* center horizontal */
+            
+
+            margin-bottom: 20px;
+        }
+        .right-panel {
+            padding: 50px 70px;
+        }
+        .login-card {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0px 4px 20px rgba(0,0,0,0.1);
+        }
+        .form-label {
+            font-weight: 600;
+        }
+    </style>
+</head>
+
+<body>
+<div class="container-fluid">
+    <div class="row">
+
+        <!-- LEFT GREEN PANEL -->
+        <div class="col-md-6 d-flex flex-column justify-content-center left-panel">
+
+            <div class="icon-box">
+                <img src="{{ asset('icons/factory.png') }}" 
+                    alt="factory" 
+                    style="width: 48px; height: 48px;">
+            </div>
+
+
+            <h2>Sistem Manajemen Pabrik Tahu</h2>
+            <p class="mt-3">Kelola produksi tahu dengan efisien dan modern.</p>
+
+            <div class="mt-4">
+                <div class="row g-3">
+                    <div class="col-6">
+                        <button class="btn btn-light w-100 py-3 d-flex flex-column align-items-center">
+                            <img src="{{ asset('icons/chart.png') }}" 
+                                alt="chart" 
+                                style="width: 30px; height: 30px; margin-bottom: 6px;">
+                            <span>Analisa Bahan Baku</span>
+                        </button>
+                    </div>
+
+                    <div class="col-6">
+                            <button class="btn btn-light w-100 py-3 d-flex flex-column align-items-center">
+                                <img src="{{ asset('icons/ready-stock.png') }}" 
+                                    alt="stock" 
+                                    style="width: 30px; height: 30px; margin-bottom: 6px;">
+                                <span>Manajemen Stok</span>
+                            </button>
+                    </div>
+
+                    <div class="col-6">
+                        <button class="btn btn-light w-100 py-3 d-flex flex-column align-items-center">
+                            <img src="{{ asset('icons/customer.png') }}" 
+                                alt="customer" 
+                                style="width: 30px; height: 30px; margin-bottom: 6px;">
+                            <span>Data Pelangggan</span>
+                        </button>
+                    </div>
+
+                    <div class="col-6">
+                        <button class="btn btn-light w-100 py-3 d-flex flex-column align-items-center">
+                            <img src="{{ asset('icons/report.png') }}" 
+                                alt="report" 
+                                style="width: 30px; height: 30px; margin-bottom: 6px;">
+                            <span>Laporan Produksi</span>
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+
         </div>
 
-        <!-- Password -->
-        <div class="mt-4">
-            <x-input-label for="password" :value="__('Password')" />
+        <!-- RIGHT LOGIN PANEL -->
+        <div class="col-md-6 d-flex align-items-center right-panel">
+            <div class="login-card w-100">
 
-            <x-text-input id="password" class="block mt-1 w-full"
-                            type="password"
-                            name="password"
-                            required autocomplete="current-password" />
+                <h3 class="text-center mb-4">Selamat Datang</h3>
+                <p class="text-center text-muted">Masuk ke akun Anda untuk melanjutkan</p>
 
-            <x-input-error :messages="$errors->get('password')" class="mt-2" />
+                <!-- FORM LOGIN -->
+                <form method="POST" action="{{ route('login') }}">
+                    @csrf
+
+                    <!-- Username -->
+                    <div class="mb-3">
+                        <label class="form-label">Username</label>
+                        <input id="email" type="email" name="email" class="form-control" placeholder="Masukkan username">
+                    </div>
+
+                    <!-- Password -->
+                    <div class="mb-3">
+                        <label class="form-label">Password</label>
+                        <input id="password" type="password" name="password" class="form-control" placeholder="Masukkan password">
+                    </div>
+
+                    <!-- Remember me -->
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" name="remember" id="remember">
+                            <label class="form-check-label" for="remember">Ingat saya</label>
+                        </div>
+                        <a href="#" class="text-decoration-none">Lupa password?</a>
+                    </div>
+
+                    <!-- Button -->
+                    <button type="submit" class="btn btn-success w-100 py-2">Masuk ke Sistem</button>
+
+                    <p class="text-center text-muted mt-3" style="font-size: 12px;">
+                        Sistem Manajemen Pabrik Tahu © 2025 — Semua Hak Dilindungi
+                    </p>
+                </form>
+            </div>
         </div>
 
-        <!-- Remember Me -->
-        <div class="block mt-4">
-            <label for="remember_me" class="inline-flex items-center">
-                <input id="remember_me" type="checkbox" class="rounded dark:bg-gray-900 border-gray-300 dark:border-gray-700 text-indigo-600 shadow-sm focus:ring-indigo-500 dark:focus:ring-indigo-600 dark:focus:ring-offset-gray-800" name="remember">
-                <span class="ms-2 text-sm text-gray-600 dark:text-gray-400">{{ __('Remember me') }}</span>
-            </label>
-        </div>
+    </div>
+</div>
 
-        <div class="flex items-center justify-end mt-4">
-            @if (Route::has('password.request'))
-                <a class="underline text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800" href="{{ route('password.request') }}">
-                    {{ __('Forgot your password?') }}
-                </a>
-            @endif
 
-            <x-primary-button class="ms-3">
-                {{ __('Log in') }}
-            </x-primary-button>
-        </div>
-    </form>
-</x-guest-layout>
+</body>
+</html>
