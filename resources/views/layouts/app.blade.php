@@ -1,59 +1,50 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="en">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-
-    <title>{{ config('app.name', 'Laravel') }}</title>
-
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet">
-
-    <!-- Bootstrap CSS -->
-    <link
-        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-        rel="stylesheet"
-    >
-
-    <style>
-        body {
-            font-family: 'Figtree', sans-serif;
-            background-color: #f8f9fc;
-        }
-
-        .header-wrapper {
-            background: #ffffff;
-            border-bottom: 1px solid #e5e5e5;
-        }
-    </style>
+    <meta charset="UTF-8">
+    <title>{{ $title ?? 'Dashboard' }}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 </head>
 
-<body>
+<body class="bg-gray-100">
 
-    <!-- NAVBAR -->
-    @include('layouts.navigation')
+<div class="flex">
 
-    <div class="min-vh-100">
+    <!-- SIDEBAR -->
+    <aside class="w-64 h-screen bg-white shadow-md fixed">
+        <div class="p-6 flex items-center gap-3 border-b">
+            <div class="w-10 h-10 bg-green-600 rounded-lg flex items-center justify-center text-white text-xl font-bold">
+                T
+            </div>
+            <div>
+                <h2 class="font-semibold">Tahu ADR</h2>
+                <p class="text-xs text-gray-500">Management System</p>
+            </div>
+        </div>
 
-        <!-- Page Header -->
-        @isset($header)
-            <header class="header-wrapper py-3 mb-4 shadow-sm">
-                <div class="container">
-                    {{ $header }}
-                </div>
-            </header>
-        @endisset
+        <nav class="mt-4 space-y-1">
+            <a href="{{ route('dashboard') }}" class="block px-6 py-3 bg-green-50 text-green-600 font-semibold">
+                Dashboard
+            </a>
+            <a class="block px-6 py-3 hover:bg-gray-100">Manajemen Pengguna</a>
+            <a class="block px-6 py-3 hover:bg-gray-100" href="{{ route('manajemen.stok.index') }}">Manajemen Stok</a>
+            <a class="block px-6 py-3 hover:bg-gray-100">Manajemen Pelanggan</a>
+            <a class="block px-6 py-3 hover:bg-gray-100">Laporan</a>
+        </nav>
+    </aside>
 
-        <!-- Page Content -->
-       <main class="container py-4">
-    @yield('content')
-</main>
-    </div>
 
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- MAIN CONTENT -->
+    <main class="ml-64 w-full p-6">
+        @yield('content')
+    </main>
+
+    
+</div>
+
+@yield('scripts')
 
 </body>
 </html>
