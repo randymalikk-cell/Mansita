@@ -25,9 +25,24 @@ class UserController extends Controller
     /**
      * Menampilkan daftar pengguna.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $users = User::paginate(10);
+        $query = User::query();
+
+        // Filter role
+        if ($request->filled('role')) {
+            $query->where('role', $request->role);
+        }
+
+        // Filter search (opsional)
+        if ($request->filled('search')) {
+            $query->where(function($q) use ($request) {
+                $q->where('nama', 'like', '%' . $request->search . '%')
+                ->orWhere('username', 'like', '%' . $request->search . '%');
+            });
+        }
+
+        $users = $query->paginate(10);
         return view('admin.users.index', compact('users'));
     }
 
