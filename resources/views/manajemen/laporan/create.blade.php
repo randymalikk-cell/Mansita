@@ -22,8 +22,8 @@
                         <label for="jenis" class="form-label">Jenis Laporan</label>
                         <select class="form-select @error('jenis') is-invalid @enderror" id="jenis" name="jenis" required>
                             <option value="">Pilih Jenis</option>
-                            <option value="produksi" {{ old('jenis') == 'produksi' ? 'selected' : '' }}>Laporan Produksi</option>
-                            <option value="keuangan" {{ old('jenis') == 'keuangan' ? 'selected' : '' }}>Laporan Keuangan (Transaksi)</option>
+                            <option value="produksi" {{ old('jenis', request('jenis')) == 'produksi' ? 'selected' : '' }}>Laporan Produksi</option>
+                            <option value="keuangan" {{ old('jenis', request('jenis')) == 'keuangan' ? 'selected' : '' }}>Laporan Keuangan (Transaksi)</option>
                         </select>
                         @error('jenis')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>
@@ -42,13 +42,13 @@
                 <div class="row">
                     <div class="col-md-6 mb-3">
                         <label for="tanggal_mulai" class="form-label">Tanggal Mulai</label>
-                        <input type="date" class="form-control @error('tanggal_mulai') is-invalid @enderror" id="tanggal_mulai" name="tanggal_mulai" value="{{ old('tanggal_mulai') }}" required>
+                        <input type="date" class="form-control @error('tanggal_mulai') is-invalid @enderror" id="tanggal_mulai" name="tanggal_mulai" value="{{ old('tanggal_mulai', request('tanggal_mulai', now()->startOfMonth()->toDateString())) }}" required>
                         @error('tanggal_mulai')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>
 
                     <div class="col-md-6 mb-4">
                         <label for="tanggal_akhir" class="form-label">Tanggal Akhir</label>
-                        <input type="date" class="form-control @error('tanggal_akhir') is-invalid @enderror" id="tanggal_akhir" name="tanggal_akhir" value="{{ old('tanggal_akhir') }}" required>
+                        <input type="date" class="form-control @error('tanggal_akhir') is-invalid @enderror" id="tanggal_akhir" name="tanggal_akhir" value="{{ old('tanggal_akhir', request('tanggal_akhir', now()->toDateString())) }}" required>
                         @error('tanggal_akhir')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>
                 </div>

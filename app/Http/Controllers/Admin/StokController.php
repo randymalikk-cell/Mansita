@@ -23,27 +23,23 @@ class StokController extends Controller
 
     /**
      * Menampilkan ringkasan stok saat ini.
-     * (Asumsi: Stok terakhir adalah total stok yang dihitung dari semua Produksi dan Transaksi)
      */
     public function index(Request $request)
     {
-        // Untuk implementasi skala besar, lebih baik menggunakan tabel master stok.
-        // Untuk saat ini, kita tampilkan data stok dari setiap Produksi (sesuai Model)
-        $stoks = Stok::with('produksi')->latest('tanggal_update')->paginate(10);
+        $query = Stok::with('produksi')->latest('tanggal_update');
         
         // Hitung total stok (Logika Sederhana: Total dari semua stok yang tercatat)
         $totalPutih = Stok::sum('total_tahu_putih');
         $totalKuning = Stok::sum('total_tahu_kuning');
         $totalStok = $totalPutih + $totalKuning;
 
-        if ($request->search) {
-            $stoks->where('nama_produk', 'LIKE', "%{$request->search}%");
+        if ($request->filled('search')) {
+            $query->whereHas('produksi', function($q) use ($request) {
+                $q->where('nama_produk', 'LIKE', "%{$request->search}%");
+            });
         }
 
-        if ($request->status) {
-            $stoks->where('status', $request->status);
-        }
-
+        $stoks = $query->paginate(10);
         return view('manajemen.stok.index', compact('stoks', 'totalPutih', 'totalStok', 'totalKuning'));
     }
 

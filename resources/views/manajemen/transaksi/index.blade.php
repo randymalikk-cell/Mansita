@@ -13,7 +13,10 @@
     <div class="card shadow mb-4">
         <div class="card-header py-3 d-flex justify-content-between align-items-center">
             <h6 class="m-0 font-weight-bold text-primary">Daftar Transaksi</h6>
-            <a href="{{ route('manajemen.transaksi.create') }}" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> Tambah Transaksi</a>
+            <div class="d-flex gap-2">
+                <a href="{{ route('manajemen.transaksi.create') }}" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> Tambah Transaksi</a>
+                <a href="{{ route('manajemen.laporan.create', ['jenis' => 'keuangan', 'tanggal_mulai' => now()->startOfMonth()->toDateString(), 'tanggal_akhir' => now()->toDateString()]) }}" class="btn btn-success btn-sm"><i class="fas fa-chart-line"></i> Buat Laporan Keuangan</a>
+            </div>
         </div>
         <div class="card-body">
             <div class="table-responsive">

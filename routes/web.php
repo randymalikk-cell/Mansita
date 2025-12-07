@@ -102,7 +102,8 @@ Route::middleware(['auth', 'role:admin,pengurus'])->prefix('manajemen')->name('m
     Route::prefix('laporan')->name('laporan.')->group(function () {
         Route::get('/', [LaporanController::class, 'index'])->name('index'); // Daftar laporan
         Route::get('/buat', [LaporanController::class, 'create'])->name('create'); // Form parameter laporan
-        Route::post('/generate', [LaporanController::class, 'generate'])->name('generate'); // Proses dan ekspor
+        Route::post('/generate', [LaporanController::class, 'generate'])->name('generate'); // Preview laporan
+        Route::get('/{laporan}/download', [LaporanController::class, 'download'])->name('download'); // Download laporan
     });
 });
 

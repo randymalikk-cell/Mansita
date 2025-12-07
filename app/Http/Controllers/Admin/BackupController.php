@@ -5,9 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Backup;
 use Illuminate\Http\Request;
-use Artisan; // Untuk menjalankan perintah Artisan dari Controller
-
-// Asumsi menggunakan package Spatie/laravel-backup (sesuai SDD)
+use Illuminate\Support\Facades\Artisan;
 
 class BackupController extends Controller
 {
