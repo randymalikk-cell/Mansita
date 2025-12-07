@@ -1,6 +1,10 @@
 @extends('layouts.app')
 
 @section('content')
+<h2 class="py-4">
+    <a href="{{ route('dashboard') }}" class="breadcrumb-link">Dashboard</a>
+    > <span style="color:#27d436ff; font-weight:700;">Input Produksi</span>
+</h2>
 <div class="container-fluid">
     <h1 class="mb-4">Riwayat Produksi Saya</h1>
     

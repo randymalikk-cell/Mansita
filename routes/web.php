@@ -89,8 +89,8 @@ Route::middleware(['auth', 'role:staf produksi'])->prefix('staf-produksi')->name
 Route::middleware(['auth', 'role:admin,pengurus'])->prefix('manajemen')->name('manajemen.')->group(function () {
     
     // --- Pengelolaan Stok (Use Case 3) ---
-    // Menampilkan ringkasan stok.
-    Route::get('/stok', [StokController::class, 'index'])->name('stok.index');
+    // CRUD Stok dengan resource routes
+    Route::resource('stok', StokController::class);
     // Fungsi untuk penyesuaian/koreksi stok manual.
     Route::post('/stok/adjust', [StokController::class, 'adjust'])->name('stok.adjust');
 

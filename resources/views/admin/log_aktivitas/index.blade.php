@@ -1,6 +1,10 @@
 @extends('layouts.app')
 
 @section('content')
+<h2 class="py-4">
+    <a href="{{ route('dashboard') }}" class="breadcrumb-link">Dashboard</a>
+    > <span style="color:#27d436ff; font-weight:700;">Log Aktivitas</span>
+</h2>
 <div class="container-fluid">
     <h1 class="mb-4">Log Aktivitas Sistem (Audit Trail)</h1>
     <p class="text-muted">Mencatat semua aksi penting yang dilakukan oleh pengguna dalam sistem.</p>

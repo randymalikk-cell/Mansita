@@ -1,6 +1,11 @@
 @extends('layouts.app')
 
 @section('content')
+<h2 class="py-4">
+    <a href="{{ route('dashboard') }}" class="breadcrumb-link">Dashboard</a>
+    > <a href="{{ route('admin.pelanggan.index') }}" class="breadcrumb-link">Manajemen Pelanggan</a>
+    > <span style="color:#27d436ff; font-weight:700;">Tambah Pelanggan</span>
+</h2>
 <div class="container">
     <h1 class="mb-4">Tambah Data Pelanggan Baru</h1>
     

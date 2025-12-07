@@ -31,7 +31,7 @@ class LaporanController extends Controller
     public function index()
     {
         $laporans = Laporan::with('dibuatOleh')->latest()->paginate(10);
-        return view('admin.laporan.index', compact('laporans'));
+        return view('manajemen.laporan.index', compact('laporans'));
     }
 
     /**
@@ -39,7 +39,7 @@ class LaporanController extends Controller
      */
     public function create()
     {
-        return view('admin.laporan.create');
+        return view('manajemen.laporan.create');
     }
 
     /**

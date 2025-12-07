@@ -27,7 +27,7 @@ class TransaksiController extends Controller
     public function index()
     {
         $transaksis = Transaksi::with('pelanggan')->latest()->paginate(10);
-        return view('admin.transaksis.index', compact('transaksis'));
+        return view('manajemen.transaksi.index', compact('transaksis'));
     }
 
     /**
@@ -36,7 +36,7 @@ class TransaksiController extends Controller
     public function create()
     {
         $pelanggans = Pelanggan::all();
-        return view('admin.transaksis.create', compact('pelanggans'));
+        return view('manajemen.transaksi.create', compact('pelanggans'));
     }
 
     /**
@@ -56,7 +56,7 @@ class TransaksiController extends Controller
         
         \App\Models\LogAktivitas::create(['user_id' => auth()->id(), 'aktivitas' => 'Mencatat transaksi jenis: ' . $validated['jenis'] . ' sebesar ' . $validated['jumlah']]);
 
-        return redirect()->route('admin.transaksis.index')->with('success', 'Transaksi berhasil dicatat.');
+        return redirect()->route('manajemen.transaksi.index')->with('success', 'Transaksi berhasil dicatat.');
     }
 
     // ... method edit, update, destroy (standar CRUD)

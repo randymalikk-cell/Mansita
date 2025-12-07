@@ -44,7 +44,7 @@ class StokController extends Controller
             $stoks->where('status', $request->status);
         }
 
-        return view('admin.stoks.index', compact('stoks', 'totalPutih', 'totalStok', 'totalKuning'));
+        return view('manajemen.stok.index', compact('stoks', 'totalPutih', 'totalStok', 'totalKuning'));
     }
 
     /**
@@ -74,5 +74,84 @@ class StokController extends Controller
         \App\Models\LogAktivitas::create(['user_id' => auth()->id(), 'aktivitas' => 'Melakukan penyesuaian stok manual.']);
 
         return back()->with('success', 'Stok berhasil disesuaikan secara manual.');
+    }
+
+    /**
+     * Menampilkan form untuk membuat stok baru.
+     */
+    public function create()
+    {
+        return view('manajemen.stok.create');
+    }
+
+    /**
+     * Menyimpan stok baru ke database.
+     */
+    public function store(Request $request)
+    {
+        $request->validate([
+            'total_tahu_putih' => 'required|integer|min:0',
+            'total_tahu_kuning' => 'required|integer|min:0',
+        ]);
+
+        Stok::create([
+            'produksi_id' => null,
+            'total_tahu_putih' => $request->total_tahu_putih,
+            'total_tahu_kuning' => $request->total_tahu_kuning,
+            'tanggal_update' => now(),
+        ]);
+
+        \App\Models\LogAktivitas::create(['user_id' => auth()->id(), 'aktivitas' => 'Menambah data stok baru.']);
+
+        return redirect()->route('manajemen.stok.index')->with('success', 'Stok berhasil ditambahkan.');
+    }
+
+    /**
+     * Menampilkan detail stok tertentu.
+     */
+    public function show(Stok $stok)
+    {
+        return view('manajemen.stok.show', compact('stok'));
+    }
+
+    /**
+     * Menampilkan form untuk mengedit stok.
+     */
+    public function edit(Stok $stok)
+    {
+        return view('manajemen.stok.edit', compact('stok'));
+    }
+
+    /**
+     * Memperbarui stok ke database.
+     */
+    public function update(Request $request, Stok $stok)
+    {
+        $request->validate([
+            'total_tahu_putih' => 'required|integer|min:0',
+            'total_tahu_kuning' => 'required|integer|min:0',
+        ]);
+
+        $stok->update([
+            'total_tahu_putih' => $request->total_tahu_putih,
+            'total_tahu_kuning' => $request->total_tahu_kuning,
+            'tanggal_update' => now(),
+        ]);
+
+        \App\Models\LogAktivitas::create(['user_id' => auth()->id(), 'aktivitas' => 'Mengedit data stok.']);
+
+        return redirect()->route('manajemen.stok.index')->with('success', 'Stok berhasil diperbarui.');
+    }
+
+    /**
+     * Menghapus stok dari database.
+     */
+    public function destroy(Stok $stok)
+    {
+        $stok->delete();
+
+        \App\Models\LogAktivitas::create(['user_id' => auth()->id(), 'aktivitas' => 'Menghapus data stok.']);
+
+        return back()->with('success', 'Stok berhasil dihapus.');
     }
 }
