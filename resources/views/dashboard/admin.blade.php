@@ -85,27 +85,33 @@
 <!-- Content Row -->
 <div class="grid grid-cols-3 gap-6 mt-6">
 
-    <!-- Chart -->
-    <div class="col-span-2 chart-container">
-        <div class="flex justify-between items-center mb-6">
-            <h2 class="font-semibold text-lg">Tren Produksi</h2>
+<!-- Chart Produksi + Export CSV & PDF -->
+<div class="lg:col-span-2 bg-white p-6 rounded-xl shadow-sm border">
+    <div class="flex justify-between items-center mb-6">
+        <h2 class="font-semibold text-lg">Tren Produksi</h2>
 
-            <div class="flex gap-2">
-                <button class="filter-btn">CSV</button>
-                <button class="filter-btn">PDF</button>
-                <select id="rangeFilter" class="filter-btn" style="padding-right: 32px;">
-    <option value="30">30 Hari Terakhir</option>
-    <option value="7">7 Hari Terakhir</option>
-    <option value="90">90 Hari Terakhir</option>
-</select>
+        <div class="flex gap-2">
+            <!-- Tombol CSV -->
+            <button id="exportCsv" class="px-4 py-2 text-xs bg-green-600 text-white rounded hover:bg-green-700 transition">
+                CSV
+            </button>
+            <!-- Tombol PDF -->
+            <button id="exportPdf" class="px-4 py-2 text-xs bg-red-600 text-white rounded hover:bg-red-700 transition">
+                PDF
+            </button>
 
-            </div>
-        </div>
-
-        <div style="position: relative; height: 300px;">
-            <canvas id="chartProduksi"></canvas>
+            <select id="rangeFilter" class="px-3 py-2 text-xs bg-gray-100 rounded cursor-pointer focus:outline-none">
+                <option value="7">7 Hari</option>
+                <option value="30" selected>30 Hari</option>
+                <option value="90">90 Hari</option>
+            </select>
         </div>
     </div>
+
+    <div style="position: relative; height: 320px;">
+        <canvas id="chartProduksi"></canvas>
+    </div>
+</div>
 
     <!-- Aktivitas -->
     <div class="bg-white p-6 rounded-lg shadow">
@@ -141,8 +147,11 @@
 @endsection
 
 @section('scripts')
-@section('scripts')
-@section('scripts')
+
+<!-- h2canvas & jsPDF (untuk export PDF) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
 <script>
 const ctx = document.getElementById('chartProduksi');
 const chartProduksi = new Chart(ctx, {
@@ -163,7 +172,9 @@ const chartProduksi = new Chart(ctx, {
     }
 });
 
-// FILTER RANGE SEDERHANA
+/* -------------------------------
+    FILTER RANGE DATA CHART
+-------------------------------- */
 document.getElementById("rangeFilter").onchange = function () {
     const range = this.value;
 
@@ -177,6 +188,54 @@ document.getElementById("rangeFilter").onchange = function () {
 
     chartProduksi.update();
 };
+
+
+/* -------------------------------
+    EXPORT CSV
+-------------------------------- */
+document.getElementById("exportCsv").onclick = function () {
+
+    let labels = chartProduksi.data.labels;
+    let data = chartProduksi.data.datasets[0].data;
+
+    let csv = "Hari,Produksi\n";
+
+    for (let i = 0; i < labels.length; i++) {
+        csv += `${labels[i]},${data[i]}\n`;
+    }
+
+    let blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    let link = document.createElement("a");
+
+    link.href = URL.createObjectURL(blob);
+    link.download = "data-produksi.csv";
+    link.click();
+};
+
+
+/* -------------------------------
+    EXPORT PDF
+-------------------------------- */
+document.getElementById("exportPdf").onclick = function () {
+    const { jsPDF } = window.jspdf;
+
+    const chartArea = document.getElementById("chartProduksi").parentNode;
+
+    html2canvas(chartArea).then(canvas => {
+        const imgData = canvas.toDataURL("image/png");
+
+        let pdf = new jsPDF({
+            orientation: "landscape",
+            unit: "px",
+            format: [canvas.width, canvas.height]
+        });
+
+        pdf.addImage(imgData, "PNG", 0, 0, canvas.width, canvas.height);
+        pdf.save("chart-produksi.pdf");
+    });
+};
+
 </script>
+
 @endsection
 
