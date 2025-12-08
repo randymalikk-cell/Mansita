@@ -1,6 +1,12 @@
 @extends('layouts.app')
 
 @section('content')
+<header class="flex justify-between items-center">
+    <div>
+        <h1 class="text-2xl font-semibold">Backup & Restore</h1>
+        <p class="text-gray-500 text-sm">Sistem Manajemen Pabrik Tahu</p>
+    </div>
+</header>
 <h2 class="py-4">
     <a href="{{ route('dashboard') }}" class="breadcrumb-link">Dashboard</a>
     > <span style="color:#27d436ff; font-weight:700;">Backup & Restore</span>
@@ -11,8 +17,9 @@
     @include('components.alert')
 
     <div class="card shadow mb-4">
-        <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">Aksi Pencadangan</h6>
+        <div class="card-header bg-white d-flex justify-content-between align-items-center"
+            style="border-radius: 16px 16px 0 0; padding: 20px 24px; border-bottom: 1px solid #F1F5F9;">
+            <h5 class="mb-0 fw-bold">Aksi Pencadangan</h5>
         </div>
         <div class="card-body">
             <div class="row">
@@ -34,16 +41,18 @@
         </div>
     </div>
 
-    <div class="card shadow mb-4">
-        <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">Riwayat Pencadangan</h6>
+    <div class="card" style="border-radius: 16px;">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center"
+            style="border-radius: 16px 16px 0 0; padding: 20px 24px; border-bottom: 1px solid #F1F5F9;">
+            <h5 class="mb-0 fw-bold">Riwayat Pencadangan</h5>
         </div>
-        <div class="card-body">
+
+        <div class="card-body p-0">
             <div class="table-responsive">
-                <table class="table table-bordered">
+                <table class="table mb-0">
                     <thead>
                         <tr>
-                            <th>#</th>
+                            <th>No</th>
                             <th>Tanggal & Waktu</th>
                             <th>Jenis</th>
                             <th>File Backup</th>
@@ -51,20 +60,36 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach($backups as $backup)
+                        @forelse($backups as $backup)
                         <tr>
-                            <td>{{ $loop->iteration }}</td>
-                            <td>{{ $backup->tanggal }}</td>
+                            <td>{{ $loop->iteration + ($backups->currentPage() - 1) * $backups->perPage() }}</td>
+                            <td><span class="fw-medium">{{ $backup->tanggal }}</span></td>
                             <td>{{ ucfirst($backup->jenis) }}</td>
                             <td>{{ $backup->file_backup }}</td>
                             <td>{{ $backup->dibuatOleh->nama ?? 'Sistem Otomatis' }}</td>
                         </tr>
-                        @endforeach
+                        @empty
+                        <tr>
+                            <td colspan="5" class="text-center py-5">
+                                <div class="text-muted">
+                                    <i class="bi bi-inbox" style="font-size: 48px;"></i>
+                                    <p class="mt-3 mb-0">Tidak ada data backup</p>
+                                </div>
+                            </td>
+                        </tr>
+                        @endforelse
                     </tbody>
                 </table>
-                {{ $backups->links() }}
             </div>
         </div>
+
+        @if($backups->hasPages())
+        <div class="card-footer bg-white"
+            style="border-radius: 0 0 16px 16px; padding: 20px 24px; border-top: 1px solid #F1F5F9;">
+            {{ $backups->links() }}
+        </div>
+        @endif
     </div>
+
 </div>
 @endsection

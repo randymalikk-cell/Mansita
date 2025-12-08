@@ -57,7 +57,7 @@ class PelangganController extends Controller
         
         \App\Models\LogAktivitas::create(['user_id' => auth('web')->id(), 'aktivitas' => 'Menambah data pelanggan baru: ' . $validated['nama_pelanggan']]);
 
-        return redirect()->route('admin.pelanggans.index')->with('success', 'Data pelanggan berhasil ditambahkan.');
+        return redirect()->route('admin.pelanggan.index')->with('success', 'Data pelanggan berhasil ditambahkan.');
     }
 
     /**
@@ -84,7 +84,7 @@ class PelangganController extends Controller
         
         \App\Models\LogAktivitas::create(['user_id' => auth('web')->id(), 'aktivitas' => 'Memperbarui data pelanggan: ' . $pelanggan->nama_pelanggan]);
 
-        return redirect()->route('admin.pelanggans.index')->with('success', 'Data pelanggan berhasil diperbarui.');
+        return redirect()->route('admin.pelanggan.index')->with('success', 'Data pelanggan berhasil diperbarui.');
     }
 
     /**
@@ -97,6 +97,6 @@ class PelangganController extends Controller
         
         \App\Models\LogAktivitas::create(['user_id' => auth('web')->id(), 'aktivitas' => 'Menghapus data pelanggan: ' . $nama]);
 
-        return redirect()->route('admin.pelanggans.index')->with('success', 'Data pelanggan berhasil dihapus.');
+        return redirect()->route('admin.pelanggan.index')->with('success', 'Data pelanggan berhasil dihapus.');
     }
 }

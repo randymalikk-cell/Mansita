@@ -52,6 +52,11 @@
                                 Staf Produksi
                             </div>
                         </div>
+                        <!-- Dashboard -->
+                        <a href="{{ route('dashboard') }}" 
+                        class="nav-link block px-6 py-3 rounded-lg {{ request()->routeIs('dashboard') ? 'active' : 'text-gray-700' }}">
+                            <i class="bi bi-house-door me-2"></i> Dashboard
+                        </a>
                         <a href="{{ route('staf-produksi.produksi.index') }}" 
                            class="nav-link block px-6 py-3 rounded-lg {{ request()->routeIs('staf-produksi.produksi.*') ? 'active' : 'text-gray-700' }}">
                             <i class="bi bi-gear me-2"></i> Input Produksi
@@ -60,6 +65,14 @@
 
                     <!-- Manajemen Menu (Admin & Pengurus) -->
                     @if(in_array(auth()->user()->role, ['pengurus']))
+                        <div class="px-6 py-1 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                            Pengurus
+                        </div>
+                        <!-- Dashboard -->
+                        <a href="{{ route('dashboard') }}" 
+                        class="nav-link block px-6 py-3 rounded-lg {{ request()->routeIs('dashboard') ? 'active' : 'text-gray-700' }}">
+                            <i class="bi bi-house-door me-2"></i> Dashboard
+                        </a>
                         <a href="{{ route('manajemen.laporan.index') }}" 
                            class="nav-link block px-6 py-3 rounded-lg {{ request()->routeIs('manajemen.laporan.*') ? 'active' : 'text-gray-700' }}">
                             <i class="bi bi-file-text me-2"></i> Laporan
@@ -68,11 +81,11 @@
 
                     <!-- Admin Only Menu -->
                     @if(auth()->user()->role === 'admin')
-                        <div class="border-t border-gray-200 my-2 pt-2">
-                            <div class="px-6 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                                Administration
-                            </div>
+                        
+                        <div class="px-6 py-1 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                            Administration
                         </div>
+                        
 
                         <!-- Dashboard -->
                         <a href="{{ route('dashboard') }}" 

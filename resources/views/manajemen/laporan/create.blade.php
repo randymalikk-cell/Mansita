@@ -1,6 +1,12 @@
 @extends('layouts.app')
 
 @section('content')
+<header class="flex justify-between items-center">
+    <div>
+        <h1 class="text-2xl font-semibold">Buat Laporan</h1>
+        <p class="text-gray-500 text-sm">Sistem Manajemen Pabrik Tahu</p>
+    </div>
+</header>
 <h2 class="py-4">
     <a href="{{ route('dashboard') }}" class="breadcrumb-link">Dashboard</a>
     > <a href="{{ route('manajemen.laporan.index') }}" class="breadcrumb-link">Laporan</a>

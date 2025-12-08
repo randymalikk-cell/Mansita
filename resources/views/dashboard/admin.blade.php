@@ -21,7 +21,6 @@
 </header>
 
 <!-- Statistik Cards -->
-<!-- Statistik Cards -->
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 py-4">
 
     <!-- Card 1 - Produksi (Hijau) -->
@@ -29,8 +28,10 @@
         <div class="flex items-start justify-between">
             <div>
                 <p class="text-sm font-medium text-gray-600">Total Produksi Hari Ini</p>
-                <p class="mt-2 text-3xl font-bold text-gray-900">1,250</p>
-                <p class="mt-1 text-sm text-green-600 font-semibold">+12% dari kemarin</p>
+                <p class="mt-2 text-3xl font-bold text-gray-900">
+                    {{ number_format($totalProduksiHariIni ?? 0) }}
+                </p>
+                <!-- <p class="mt-1 text-sm text-green-600 font-semibold">+12% dari kemarin</p> -->
             </div>
             <div class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center text-2xl">
                 📋
@@ -43,8 +44,10 @@
         <div class="flex items-start justify-between">
             <div>
                 <p class="text-sm font-medium text-gray-600">Sisa Stok</p>
-                <p class="mt-2 text-3xl font-bold text-gray-900">3,840</p>
-                <p class="mt-1 text-sm text-blue-600 font-semibold">Stok aman</p>
+                <p class="mt-2 text-3xl font-bold text-gray-900">
+                    {{ number_format($sisaStok) }}
+                </p>
+                <!-- <p class="mt-1 text-sm text-blue-600 font-semibold">Stok aman</p> -->
             </div>
             <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center text-2xl">
                 📦
@@ -57,8 +60,10 @@
         <div class="flex items-start justify-between">
             <div>
                 <p class="text-sm font-medium text-gray-600">Total Pesanan</p>
-                <p class="mt-2 text-3xl font-bold text-gray-900">87</p>
-                <p class="mt-1 text-sm text-orange-600 font-semibold">15 pending</p>
+                <p class="mt-2 text-3xl font-bold text-gray-900">
+                    {{ $totalPesanan }}
+                </p>
+                <!-- <p class="mt-1 text-sm text-orange-600 font-semibold">15 pending</p> -->
             </div>
             <div class="w-12 h-12 rounded-full bg-orange-100 flex items-center justify-center text-2xl">
                 🛒
@@ -71,8 +76,10 @@
         <div class="flex items-start justify-between">
             <div>
                 <p class="text-sm font-medium text-gray-600">Pendapatan</p>
-                <p class="mt-2 text-3xl font-bold text-gray-900">Rp 12.5M</p>
-                <p class="mt-1 text-sm text-teal-600 font-semibold">+8% bulan ini</p>
+                <p class="mt-2 text-3xl font-bold text-gray-900">
+                    Rp {{ number_format($totalPendapatan, 0, ',', '.') }}
+                </p>
+                <!-- <p class="mt-1 text-sm text-teal-600 font-semibold">+8% bulan ini</p> -->
             </div>
             <div class="w-12 h-12 rounded-full bg-teal-100 flex items-center justify-center text-2xl">
                 💰
@@ -101,9 +108,9 @@
             </button>
 
             <select id="rangeFilter" class="px-3 py-2 text-xs bg-gray-100 rounded cursor-pointer focus:outline-none">
-                <option value="7">7 Hari</option>
-                <option value="30" selected>30 Hari</option>
-                <option value="90">90 Hari</option>
+                <option value="7"  {{ $range == 7 ? 'selected' : '' }}>7 Hari</option>
+                <option value="30" {{ $range == 30 ? 'selected' : '' }}>30 Hari</option>
+                <option value="90" {{ $range == 90 ? 'selected' : '' }}>90 Hari</option>
             </select>
         </div>
     </div>
@@ -118,27 +125,16 @@
         <h2 class="font-semibold mb-4">Aktivitas Terbaru</h2>
 
         <ul class="space-y-4 text-sm">
-
-            <li>
-                <p class="font-semibold">Produksi Tahu Putih</p>
-                <p class="text-gray-600 text-xs">500 unit ditambahkan • 2 jam lalu</p>
-            </li>
-
-            <li>
-                <p class="font-semibold">Pelanggan Baru</p>
-                <p class="text-gray-600 text-xs">Warung Ibu Budi terdaftar • 3 jam lalu</p>
-            </li>
-
-            <li>
-                <p class="font-semibold">Pesanan Baru</p>
-                <p class="text-gray-600 text-xs">42 unit Tahu Kuning • 4 jam lalu</p>
-            </li>
-
-            <li>
-                <p class="font-semibold">Stok Menipis</p>
-                <p class="text-gray-600 text-xs">Tahu Putih &lt; 100 unit • 5 jam lalu</p>
-            </li>
-
+            @forelse ($aktivitasTerbaru as $item)
+                <li>
+                    <p class="font-semibold">{{ $item->aktivitas }}</p>
+                    <p class="text-gray-600 text-xs">
+                        {{ \Carbon\Carbon::parse($item->created_at)->diffForHumans() }}
+                    </p>
+                </li>
+            @empty
+                <p class="text-gray-500 text-sm">Belum ada aktivitas.</p>
+            @endforelse
         </ul>
     </div>
 
@@ -153,87 +149,82 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <script>
-const ctx = document.getElementById('chartProduksi');
-const chartProduksi = new Chart(ctx, {
-    type: 'bar',
-    data: {
-        labels: ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'],
-        datasets: [{
-            label: 'Produksi (unit)',
-            backgroundColor: '#10B981',
-            borderRadius: 8,
-            barThickness: 40,
-            data: [800, 950, 1000, 1050, 1200, 1150, 1450]
-        }]
-    },
-    options: {
-        responsive: true,
-        maintainAspectRatio: false
-    }
-});
+    
+    const chartLabels = {!! json_encode($labels) !!};
+    const chartData   = {!! json_encode($dataProduksi) !!};
 
-/* -------------------------------
-    FILTER RANGE DATA CHART
--------------------------------- */
-document.getElementById("rangeFilter").onchange = function () {
-    const range = this.value;
+    const ctx = document.getElementById('chartProduksi');
 
-    const data7  = [300, 450, 600, 700, 500, 650, 800];
-    const data30 = [800, 950, 1000, 1050, 1200, 1150, 1450];
-    const data90 = [500, 700, 900, 950, 1100, 1250, 1550];
-
-    if (range == 7) chartProduksi.data.datasets[0].data = data7;
-    if (range == 30) chartProduksi.data.datasets[0].data = data30;
-    if (range == 90) chartProduksi.data.datasets[0].data = data90;
-
-    chartProduksi.update();
-};
-
-
-/* -------------------------------
-    EXPORT CSV
--------------------------------- */
-document.getElementById("exportCsv").onclick = function () {
-
-    let labels = chartProduksi.data.labels;
-    let data = chartProduksi.data.datasets[0].data;
-
-    let csv = "Hari,Produksi\n";
-
-    for (let i = 0; i < labels.length; i++) {
-        csv += `${labels[i]},${data[i]}\n`;
-    }
-
-    let blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-    let link = document.createElement("a");
-
-    link.href = URL.createObjectURL(blob);
-    link.download = "data-produksi.csv";
-    link.click();
-};
-
-
-/* -------------------------------
-    EXPORT PDF
--------------------------------- */
-document.getElementById("exportPdf").onclick = function () {
-    const { jsPDF } = window.jspdf;
-
-    const chartArea = document.getElementById("chartProduksi").parentNode;
-
-    html2canvas(chartArea).then(canvas => {
-        const imgData = canvas.toDataURL("image/png");
-
-        let pdf = new jsPDF({
-            orientation: "landscape",
-            unit: "px",
-            format: [canvas.width, canvas.height]
-        });
-
-        pdf.addImage(imgData, "PNG", 0, 0, canvas.width, canvas.height);
-        pdf.save("chart-produksi.pdf");
+    const chartProduksi = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: chartLabels,
+            datasets: [{
+                label: 'Total Produksi (unit)',
+                backgroundColor: '#10B981',
+                borderRadius: 8,
+                barThickness: 30,
+                data: chartData
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false
+        }
     });
-};
+
+    /* -------------------------------
+        FILTER RANGE DATA CHART
+    -------------------------------- */
+    document.getElementById("rangeFilter").addEventListener("change", function () {
+        const range = this.value;
+        window.location.href = `?range=${range}`;
+    });
+
+    /* -------------------------------
+        EXPORT CSV
+    -------------------------------- */
+    document.getElementById("exportCsv").onclick = function () {
+
+        let labels = chartProduksi.data.labels;
+        let data = chartProduksi.data.datasets[0].data;
+
+        let csv = "Hari,Produksi\n";
+
+        for (let i = 0; i < labels.length; i++) {
+            csv += `${labels[i]},${data[i]}\n`;
+        }
+
+        let blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+        let link = document.createElement("a");
+
+        link.href = URL.createObjectURL(blob);
+        link.download = "data-produksi.csv";
+        link.click();
+    };
+
+
+    /* -------------------------------
+        EXPORT PDF
+    -------------------------------- */
+    document.getElementById("exportPdf").onclick = function () {
+        const { jsPDF } = window.jspdf;
+
+        const chartArea = document.getElementById("chartProduksi").parentNode;
+
+        html2canvas(chartArea).then(canvas => {
+            const imgData = canvas.toDataURL("image/png");
+
+            let pdf = new jsPDF({
+                orientation: "landscape",
+                unit: "px",
+                format: [canvas.width, canvas.height]
+            });
+
+            pdf.addImage(imgData, "PNG", 0, 0, canvas.width, canvas.height);
+            pdf.save("chart-produksi.pdf");
+        });
+    };
 
 </script>
 

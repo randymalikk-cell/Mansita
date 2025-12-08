@@ -1,10 +1,16 @@
 @extends('layouts.app')
 
 @section('content')
+<header class="flex justify-between items-center">
+    <div>
+        <h1 class="text-2xl font-semibold">Edit Data Pelanggan</h1>
+        <p class="text-gray-500 text-sm">Sistem Manajemen Pabrik Tahu</p>
+    </div>
+</header>
 <h2 class="py-4">
     <a href="{{ route('dashboard') }}" class="breadcrumb-link">Dashboard</a>
     > <a href="{{ route('admin.pelanggan.index') }}" class="breadcrumb-link">Manajemen Pelanggan</a>
-    > <span style="color:#27d436ff; font-weight:700;">Edit Pelanggan</span>
+    > <span style="color:#27d436ff; font-weight:700;">Edit Data Pelanggan</span>
 </h2>
 <div class="container">
     <h1 class="mb-4">Edit Data Pelanggan: {{ $pelanggan->nama_pelanggan }}</h1>

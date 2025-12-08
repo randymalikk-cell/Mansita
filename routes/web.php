@@ -132,10 +132,10 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
         Route::post('/restore', [BackupController::class, 'executeRestore'])->name('restore'); // Trigger Restore
     
     // EXPORT
-Route::get('/dashboard/export/csv', [DashboardController::class, 'exportCSV'])->name('dashboard.export.csv');
-Route::get('/dashboard/export/pdf', [DashboardController::class, 'exportPDF'])->name('dashboard.export.pdf');
+    Route::get('/dashboard/export/csv', [DashboardController::class, 'exportCSV'])->name('dashboard.export.csv');
+    Route::get('/dashboard/export/pdf', [DashboardController::class, 'exportPDF'])->name('dashboard.export.pdf');
 
-// FILTER
-Route::get('/dashboard/filter/{range}', [DashboardController::class, 'filter']);
-    });
+    // FILTER
+    Route::get('/dashboard/filter/{range}', [DashboardController::class, 'filter']);
+        });
 });
