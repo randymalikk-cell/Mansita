@@ -14,7 +14,7 @@ class StokController extends Controller
     {
         $this->middleware('auth');
         $this->middleware(function ($request, $next) {
-            if (!in_array(auth()->user()->role, ['admin', 'pengurus'])) {
+            if (!in_array(auth('web')->user()->role, ['admin', 'pengurus'])) {
                 abort(403, 'Akses hanya untuk Admin atau Pengurus.');
             }
             return $next($request);
@@ -67,7 +67,7 @@ class StokController extends Controller
             ]
         );
         
-        \App\Models\LogAktivitas::create(['user_id' => auth()->id(), 'aktivitas' => 'Melakukan penyesuaian stok manual.']);
+        \App\Models\LogAktivitas::create(['user_id' => auth('web')->id(), 'aktivitas' => 'Melakukan penyesuaian stok manual.']);
 
         return back()->with('success', 'Stok berhasil disesuaikan secara manual.');
     }
@@ -83,24 +83,25 @@ class StokController extends Controller
     /**
      * Menyimpan stok baru ke database.
      */
-    public function store(Request $request)
-    {
+    public function store(Request $request){
         $request->validate([
             'total_tahu_putih' => 'required|integer|min:0',
             'total_tahu_kuning' => 'required|integer|min:0',
         ]);
 
+        // otomatis ambil produksi terakhir
+        $produksi = \App\Models\Produksi::orderBy('id', 'desc')->first();
+
         Stok::create([
-            'produksi_id' => null,
+            'produksi_id' => $produksi ? $produksi->id : 0,
             'total_tahu_putih' => $request->total_tahu_putih,
             'total_tahu_kuning' => $request->total_tahu_kuning,
             'tanggal_update' => now(),
         ]);
 
-        \App\Models\LogAktivitas::create(['user_id' => auth()->id(), 'aktivitas' => 'Menambah data stok baru.']);
-
         return redirect()->route('manajemen.stok.index')->with('success', 'Stok berhasil ditambahkan.');
     }
+
 
     /**
      * Menampilkan detail stok tertentu.
@@ -134,7 +135,7 @@ class StokController extends Controller
             'tanggal_update' => now(),
         ]);
 
-        \App\Models\LogAktivitas::create(['user_id' => auth()->id(), 'aktivitas' => 'Mengedit data stok.']);
+        \App\Models\LogAktivitas::create(['user_id' => auth('web')->id(), 'aktivitas' => 'Mengedit data stok.']);
 
         return redirect()->route('manajemen.stok.index')->with('success', 'Stok berhasil diperbarui.');
     }
@@ -146,7 +147,7 @@ class StokController extends Controller
     {
         $stok->delete();
 
-        \App\Models\LogAktivitas::create(['user_id' => auth()->id(), 'aktivitas' => 'Menghapus data stok.']);
+        \App\Models\LogAktivitas::create(['user_id' => auth('web')->id(), 'aktivitas' => 'Menghapus data stok.']);
 
         return back()->with('success', 'Stok berhasil dihapus.');
     }

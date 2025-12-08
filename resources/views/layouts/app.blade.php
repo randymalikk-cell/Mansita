@@ -45,14 +45,13 @@
                         $user = auth()->user();
                     @endphp
 
-                    <!-- Dashboard -->
-                    <a href="{{ route('dashboard') }}" 
-                       class="nav-link block px-6 py-3 rounded-lg {{ request()->routeIs('dashboard') ? 'active' : 'text-gray-700' }}">
-                        <i class="bi bi-house-door me-2"></i> Dashboard
-                    </a>
-
                     <!-- Staf Produksi Menu -->
                     @if(auth()->user()->role === 'staf produksi')
+                        <div class="border-t border-gray-200 my-2 pt-2">
+                            <div class="px-6 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                                Staf Produksi
+                            </div>
+                        </div>
                         <a href="{{ route('staf-produksi.produksi.index') }}" 
                            class="nav-link block px-6 py-3 rounded-lg {{ request()->routeIs('staf-produksi.produksi.*') ? 'active' : 'text-gray-700' }}">
                             <i class="bi bi-gear me-2"></i> Input Produksi
@@ -60,17 +59,7 @@
                     @endif
 
                     <!-- Manajemen Menu (Admin & Pengurus) -->
-                    @if(in_array(auth()->user()->role, ['admin', 'pengurus']))
-                        <a href="{{ route('manajemen.stok.index') }}" 
-                           class="nav-link block px-6 py-3 rounded-lg {{ request()->routeIs('manajemen.stok.*') ? 'active' : 'text-gray-700' }}">
-                            <i class="bi bi-box-seam me-2"></i> Manajemen Stok
-                        </a>
-
-                        <a href="{{ route('manajemen.transaksi.index') }}" 
-                           class="nav-link block px-6 py-3 rounded-lg {{ request()->routeIs('manajemen.transaksi.*') ? 'active' : 'text-gray-700' }}">
-                            <i class="bi bi-receipt me-2"></i> Transaksi
-                        </a>
-
+                    @if(in_array(auth()->user()->role, ['pengurus']))
                         <a href="{{ route('manajemen.laporan.index') }}" 
                            class="nav-link block px-6 py-3 rounded-lg {{ request()->routeIs('manajemen.laporan.*') ? 'active' : 'text-gray-700' }}">
                             <i class="bi bi-file-text me-2"></i> Laporan
@@ -85,6 +74,22 @@
                             </div>
                         </div>
 
+                        <!-- Dashboard -->
+                        <a href="{{ route('dashboard') }}" 
+                        class="nav-link block px-6 py-3 rounded-lg {{ request()->routeIs('dashboard') ? 'active' : 'text-gray-700' }}">
+                            <i class="bi bi-house-door me-2"></i> Dashboard
+                        </a>
+
+                        <a href="{{ route('manajemen.stok.index') }}" 
+                           class="nav-link block px-6 py-3 rounded-lg {{ request()->routeIs('manajemen.stok.*') ? 'active' : 'text-gray-700' }}">
+                            <i class="bi bi-box-seam me-2"></i> Manajemen Stok
+                        </a>
+
+                        <a href="{{ route('manajemen.transaksi.index') }}" 
+                           class="nav-link block px-6 py-3 rounded-lg {{ request()->routeIs('manajemen.transaksi.*') ? 'active' : 'text-gray-700' }}">
+                            <i class="bi bi-receipt me-2"></i> Transaksi
+                        </a>
+
                         <a href="{{ route('admin.users.index') }}" 
                            class="nav-link block px-6 py-3 rounded-lg {{ request()->routeIs('admin.users.*') ? 'active' : 'text-gray-700' }}">
                             <i class="bi bi-people me-2"></i> Manajemen Pengguna
@@ -93,6 +98,11 @@
                         <a href="{{ route('admin.pelanggan.index') }}" 
                            class="nav-link block px-6 py-3 rounded-lg {{ request()->routeIs('admin.pelanggan.*') ? 'active' : 'text-gray-700' }}">
                             <i class="bi bi-person-badge me-2"></i> Manajemen Pelanggan
+                        </a>
+
+                        <a href="{{ route('manajemen.laporan.index') }}" 
+                           class="nav-link block px-6 py-3 rounded-lg {{ request()->routeIs('manajemen.laporan.*') ? 'active' : 'text-gray-700' }}">
+                            <i class="bi bi-file-text me-2"></i> Laporan
                         </a>
 
                         <a href="{{ route('admin.log_aktivitas.index') }}" 
