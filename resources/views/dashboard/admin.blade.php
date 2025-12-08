@@ -21,35 +21,65 @@
 </header>
 
 <!-- Statistik Cards -->
-<div class="grid grid-cols-4 gap-5 py-4">
+<!-- Statistik Cards -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 py-4">
 
-    <div class="stat-card green">
-        <div class="icon">📋</div>
-        <h3>Total Produksi Hari Ini</h3>
-        <div class="value">1,250</div>
-        <div class="subtitle text-green-600">+12% dari kemarin</div>
+    <!-- Card 1 - Produksi (Hijau) -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow">
+        <div class="flex items-start justify-between">
+            <div>
+                <p class="text-sm font-medium text-gray-600">Total Produksi Hari Ini</p>
+                <p class="mt-2 text-3xl font-bold text-gray-900">1,250</p>
+                <p class="mt-1 text-sm text-green-600 font-semibold">+12% dari kemarin</p>
+            </div>
+            <div class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center text-2xl">
+                📋
+            </div>
+        </div>
     </div>
 
-    <div class="stat-card blue">
-        <div class="icon">📦</div>
-        <h3>Sisa Stok</h3>
-        <div class="value">3,840</div>
-        <div class="subtitle text-blue-600">Stok aman</div>
+    <!-- Card 2 - Stok (Biru) -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow">
+        <div class="flex items-start justify-between">
+            <div>
+                <p class="text-sm font-medium text-gray-600">Sisa Stok</p>
+                <p class="mt-2 text-3xl font-bold text-gray-900">3,840</p>
+                <p class="mt-1 text-sm text-blue-600 font-semibold">Stok aman</p>
+            </div>
+            <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center text-2xl">
+                📦
+            </div>
+        </div>
     </div>
 
-    <div class="stat-card orange">
-        <div class="icon">🛒</div>
-        <h3>Total Pesanan</h3>
-        <div class="value">87</div>
-        <div class="subtitle text-orange-500">15 pending</div>
+    <!-- Card 3 - Pesanan (Oranye) -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow">
+        <div class="flex items-start justify-between">
+            <div>
+                <p class="text-sm font-medium text-gray-600">Total Pesanan</p>
+                <p class="mt-2 text-3xl font-bold text-gray-900">87</p>
+                <p class="mt-1 text-sm text-orange-600 font-semibold">15 pending</p>
+            </div>
+            <div class="w-12 h-12 rounded-full bg-orange-100 flex items-center justify-center text-2xl">
+                🛒
+            </div>
+        </div>
     </div>
 
-    <div class="stat-card teal">
-        <div class="icon">💰</div>
-        <h3>Pendapatan</h3>
-        <div class="value">Rp 12.5M</div>
-        <div class="subtitle text-teal-600">+8% bulan ini</div>
+    <!-- Card 4 - Pendapatan (Teal) -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow">
+        <div class="flex items-start justify-between">
+            <div>
+                <p class="text-sm font-medium text-gray-600">Pendapatan</p>
+                <p class="mt-2 text-3xl font-bold text-gray-900">Rp 12.5M</p>
+                <p class="mt-1 text-sm text-teal-600 font-semibold">+8% bulan ini</p>
+            </div>
+            <div class="w-12 h-12 rounded-full bg-teal-100 flex items-center justify-center text-2xl">
+                💰
+            </div>
+        </div>
     </div>
+
 </div>
 
 <!-- Content Row -->
@@ -63,11 +93,12 @@
             <div class="flex gap-2">
                 <button class="filter-btn">CSV</button>
                 <button class="filter-btn">PDF</button>
-                <select class="filter-btn" style="padding-right: 32px;">
-                    <option>30 Hari Terakhir</option>
-                    <option>7 Hari Terakhir</option>
-                    <option>90 Hari Terakhir</option>
-                </select>
+                <select id="rangeFilter" class="filter-btn" style="padding-right: 32px;">
+    <option value="30">30 Hari Terakhir</option>
+    <option value="7">7 Hari Terakhir</option>
+    <option value="90">90 Hari Terakhir</option>
+</select>
+
             </div>
         </div>
 
@@ -111,9 +142,10 @@
 
 @section('scripts')
 @section('scripts')
+@section('scripts')
 <script>
 const ctx = document.getElementById('chartProduksi');
-new Chart(ctx, {
+const chartProduksi = new Chart(ctx, {
     type: 'bar',
     data: {
         labels: ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'],
@@ -127,44 +159,24 @@ new Chart(ctx, {
     },
     options: {
         responsive: true,
-        maintainAspectRatio: false,
-        plugins: { 
-            legend: { display: false },
-            tooltip: {
-                backgroundColor: '#1F2937',
-                padding: 12,
-                cornerRadius: 8,
-                displayColors: false
-            }
-        },
-        scales: { 
-            y: { 
-                beginAtZero: true,
-                grid: {
-                    color: '#F1F5F9',
-                    drawBorder: false
-                },
-                ticks: {
-                    color: '#64748B',
-                    font: {
-                        size: 12
-                    }
-                }
-            },
-            x: {
-                grid: {
-                    display: false
-                },
-                ticks: {
-                    color: '#64748B',
-                    font: {
-                        size: 12,
-                        weight: '500'
-                    }
-                }
-            }
-        }
+        maintainAspectRatio: false
     }
 });
+
+// FILTER RANGE SEDERHANA
+document.getElementById("rangeFilter").onchange = function () {
+    const range = this.value;
+
+    const data7  = [300, 450, 600, 700, 500, 650, 800];
+    const data30 = [800, 950, 1000, 1050, 1200, 1150, 1450];
+    const data90 = [500, 700, 900, 950, 1100, 1250, 1550];
+
+    if (range == 7) chartProduksi.data.datasets[0].data = data7;
+    if (range == 30) chartProduksi.data.datasets[0].data = data30;
+    if (range == 90) chartProduksi.data.datasets[0].data = data90;
+
+    chartProduksi.update();
+};
 </script>
 @endsection
+

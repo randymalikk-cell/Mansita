@@ -9,16 +9,20 @@ use Illuminate\Http\Request;
 class PelangganController extends Controller
 {
     // Otorisasi: Hanya Admin yang dapat mengakses (Use Case 4)
-    public function __construct()
-    {
-        $this->middleware('auth');
-        $this->middleware(function ($request, $next) {
-            if (auth()->user()->role !== 'admin') {
-                abort(403, 'Akses hanya untuk Administrator.');
-            }
-            return $next($request);
-        });
-    }
+   public function __construct()
+{
+    $this->middleware('auth');
+    $this->middleware(function ($request, $next) {
+
+        // FIX AUTH ERROR
+        if (!auth('web')->check() || auth('web')->user()->role !== 'admin') {
+            abort(403, 'Akses hanya untuk Administrator.');
+        }
+
+        return $next($request);
+    });
+}
+
 
     /**
      * Menampilkan daftar pelanggan.
@@ -51,7 +55,7 @@ class PelangganController extends Controller
 
         Pelanggan::create($validated);
         
-        \App\Models\LogAktivitas::create(['user_id' => auth()->id(), 'aktivitas' => 'Menambah data pelanggan baru: ' . $validated['nama_pelanggan']]);
+        \App\Models\LogAktivitas::create(['user_id' => auth('web')->id(), 'aktivitas' => 'Menambah data pelanggan baru: ' . $validated['nama_pelanggan']]);
 
         return redirect()->route('admin.pelanggans.index')->with('success', 'Data pelanggan berhasil ditambahkan.');
     }
@@ -78,7 +82,7 @@ class PelangganController extends Controller
 
         $pelanggan->update($validated);
         
-        \App\Models\LogAktivitas::create(['user_id' => auth()->id(), 'aktivitas' => 'Memperbarui data pelanggan: ' . $pelanggan->nama_pelanggan]);
+        \App\Models\LogAktivitas::create(['user_id' => auth('web')->id(), 'aktivitas' => 'Memperbarui data pelanggan: ' . $pelanggan->nama_pelanggan]);
 
         return redirect()->route('admin.pelanggans.index')->with('success', 'Data pelanggan berhasil diperbarui.');
     }
@@ -91,7 +95,7 @@ class PelangganController extends Controller
         $nama = $pelanggan->nama_pelanggan;
         $pelanggan->delete();
         
-        \App\Models\LogAktivitas::create(['user_id' => auth()->id(), 'aktivitas' => 'Menghapus data pelanggan: ' . $nama]);
+        \App\Models\LogAktivitas::create(['user_id' => auth('web')->id(), 'aktivitas' => 'Menghapus data pelanggan: ' . $nama]);
 
         return redirect()->route('admin.pelanggans.index')->with('success', 'Data pelanggan berhasil dihapus.');
     }

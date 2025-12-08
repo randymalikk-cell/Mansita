@@ -13,7 +13,7 @@ class DashboardController extends Controller
      */
     public function index()
     {
-        $user = auth()->user();
+        $user = auth('web')->user();
 
         // Data umum untuk semua dashboard
         $totalProduksiHariIni = Produksi::whereDate('tanggal', today())->count();
@@ -27,7 +27,6 @@ class DashboardController extends Controller
             // Tampilan Staf Produksi: Hanya fokus pada input Produksi
             return view('dashboard.staf_produksi', compact('totalProduksiHariIni'));
         }
-
         return redirect('/');
     }
 }
