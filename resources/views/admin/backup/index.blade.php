@@ -57,20 +57,76 @@
                             <th>Jenis</th>
                             <th>File Backup</th>
                             <th>Dibuat Oleh</th>
+                            <th>Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse($backups as $backup)
                         <tr>
                             <td>{{ $loop->iteration + ($backups->currentPage() - 1) * $backups->perPage() }}</td>
-                            <td><span class="fw-medium">{{ $backup->tanggal }}</span></td>
-                            <td>{{ ucfirst($backup->jenis) }}</td>
+                            <td><span class="fw-medium">{{ \Carbon\Carbon::parse($backup->tanggal)->format('d/m/Y H:i:s') }}</span></td>
+                            <td><span class="badge bg-info">{{ ucfirst($backup->jenis) }}</span></td>
                             <td>{{ $backup->file_backup }}</td>
                             <td>{{ $backup->dibuatOleh->nama ?? 'Sistem Otomatis' }}</td>
+                            <td>
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <a href="{{ route('admin.backup.download', $backup->id) }}" 
+                                       class="btn btn-sm btn-info" 
+                                       title="Download file backup">
+                                        <i class="fas fa-download"></i>
+                                    </a>
+                                    <button type="button" 
+                                            class="btn btn-sm btn-warning" 
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#restoreModal{{ $backup->id }}"
+                                            title="Restore dari backup ini">
+                                        <i class="fas fa-undo"></i>
+                                    </button>
+                                    <form action="{{ route('admin.backup.delete', $backup->id) }}" 
+                                          method="POST" 
+                                          style="display:inline;" 
+                                          onsubmit="return confirm('Yakin ingin menghapus backup ini?');">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" 
+                                                class="btn btn-sm btn-danger" 
+                                                title="Hapus backup">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+
+                                <!-- Restore Modal -->
+                                <div class="modal fade" id="restoreModal{{ $backup->id }}" tabindex="-1">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">Restore Dari Backup</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <p><strong>File:</strong> {{ $backup->file_backup }}</p>
+                                                <p><strong>Tanggal:</strong> {{ \Carbon\Carbon::parse($backup->tanggal)->format('d/m/Y H:i:s') }}</p>
+                                                <p class="text-danger"><strong>⚠️ Peringatan:</strong> Proses restore akan menghapus semua data saat ini dan menggantinya dengan data dari backup ini. Lanjutkan?</p>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                                                <form action="{{ route('admin.backup.restore') }}" method="POST" style="display:inline;">
+                                                    @csrf
+                                                    <input type="hidden" name="backup_id" value="{{ $backup->id }}">
+                                                    <button type="submit" class="btn btn-danger">
+                                                        <i class="fas fa-undo me-1"></i> Ya, Lakukan Restore
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="5" class="text-center py-5">
+                            <td colspan="6" class="text-center py-5">
                                 <div class="text-muted">
                                     <i class="bi bi-inbox" style="font-size: 48px;"></i>
                                     <p class="mt-3 mb-0">Tidak ada data backup</p>

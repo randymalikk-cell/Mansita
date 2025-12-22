@@ -17,6 +17,10 @@ class Backup extends Model
         'dibuat_oleh_user_id',
     ];
 
+    protected $casts = [
+        'tanggal' => 'datetime',
+    ];
+
     // Relasi: Backup dibuat oleh satu User (N:1)
     public function dibuatOleh(): BelongsTo
     {

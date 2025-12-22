@@ -130,12 +130,14 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
         Route::get('/', [BackupController::class, 'index'])->name('index');      // Daftar riwayat backup
         Route::post('/execute', [BackupController::class, 'executeBackup'])->name('execute'); // Trigger Backup
         Route::post('/restore', [BackupController::class, 'executeRestore'])->name('restore'); // Trigger Restore
-    
+        Route::get('/{id}/download', [BackupController::class, 'download'])->name('download'); // Download backup
+        Route::delete('/{id}', [BackupController::class, 'delete'])->name('delete'); // Delete backup
+    });
+
     // EXPORT
     Route::get('/dashboard/export/csv', [DashboardController::class, 'exportCSV'])->name('dashboard.export.csv');
     Route::get('/dashboard/export/pdf', [DashboardController::class, 'exportPDF'])->name('dashboard.export.pdf');
 
     // FILTER
     Route::get('/dashboard/filter/{range}', [DashboardController::class, 'filter']);
-        });
 });
