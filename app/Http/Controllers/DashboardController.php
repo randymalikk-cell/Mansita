@@ -34,12 +34,11 @@ class DashboardController extends Controller
 
 
             /* ----------------------------- 
-            SISA STOK (ambil stok terbaru)
+            SISA STOK (total dari semua stok)
             ------------------------------ */
-            $lastStok = Stok::orderBy('tanggal_update', 'desc')->first();
-
-            $sisaStok = ($lastStok->jumlah_tahu_putih ?? 0) +
-                        ($lastStok->jumlah_tahu_kuning ?? 0);
+            $stokPutih = Stok::sum('total_tahu_putih') ?? 0;
+            $stokKuning = Stok::sum('total_tahu_kuning') ?? 0;
+            $sisaStok = $stokPutih + $stokKuning;
 
 
             /* ----------------------------- 
@@ -83,6 +82,8 @@ class DashboardController extends Controller
             return view('dashboard.admin', compact(
                 'totalProduksiHariIni',
                 'sisaStok',
+                'stokPutih',
+                'stokKuning',
                 'totalPesanan',
                 'totalPendapatan',
                 'aktivitasTerbaru',
@@ -90,7 +91,24 @@ class DashboardController extends Controller
             ));
         } elseif ($user->role === 'staf produksi') {
             // Tampilan Staf Produksi: Hanya fokus pada input Produksi
-            return view('dashboard.staf_produksi', compact('totalProduksiHariIni'));
+            // Metrics untuk user saat ini
+            $produksi_today = Produksi::where('user_id', $user->id)
+                ->whereDate('tanggal', today())
+                ->count();
+            
+            $produksi_selesai = Produksi::where('user_id', $user->id)
+                ->whereDate('tanggal', today())
+                ->whereHas('stok') // Ada record stok = selesai/confirmed
+                ->count();
+            
+            $produksi_proses = $produksi_today - $produksi_selesai; // Belum confirm stok
+            
+            return view('dashboard.staf_produksi', compact(
+                'totalProduksiHariIni',
+                'produksi_today',
+                'produksi_selesai',
+                'produksi_proses'
+            ));
         } elseif ($user->role === 'pengurus') {
             /// ===== DASHBOARD KHUSUS PENGURUS =====
             // Pengurus hanya melihat laporan dan monitoring saja

@@ -21,7 +21,7 @@
 </header>
 
 <!-- Statistik Cards -->
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 py-4">
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 py-4">
 
     <!-- Card 1 - Produksi (Hijau) -->
     <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow">
@@ -39,17 +39,31 @@
         </div>
     </div>
 
-    <!-- Card 2 - Stok (Biru) -->
+    <!-- Card 2 - Stok Tahu Putih (Biru) -->
     <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow">
         <div class="flex items-start justify-between">
             <div>
-                <p class="text-sm font-medium text-gray-600">Sisa Stok</p>
+                <p class="text-sm font-medium text-gray-600">Stok Tahu Putih</p>
                 <p class="mt-2 text-3xl font-bold text-gray-900">
-                    {{ number_format($sisaStok) }}
+                    {{ number_format($stokPutih ?? 0) }}
                 </p>
-                <!-- <p class="mt-1 text-sm text-blue-600 font-semibold">Stok aman</p> -->
             </div>
             <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center text-2xl">
+                📦
+            </div>
+        </div>
+    </div>
+
+    <!-- Card 2b - Stok Tahu Kuning (Kuning) -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow">
+        <div class="flex items-start justify-between">
+            <div>
+                <p class="text-sm font-medium text-gray-600">Stok Tahu Kuning</p>
+                <p class="mt-2 text-3xl font-bold text-gray-900">
+                    {{ number_format($stokKuning ?? 0) }}
+                </p>
+            </div>
+            <div class="w-12 h-12 rounded-full bg-yellow-100 flex items-center justify-center text-2xl">
                 📦
             </div>
         </div>
