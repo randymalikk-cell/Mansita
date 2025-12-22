@@ -30,6 +30,7 @@
             @csrf
 
             <div class="form-group">
+                
                 <label class="form-label" for="total_tahu_putih">
                     Total Tahu Putih <span class="required">*</span>
                 </label>

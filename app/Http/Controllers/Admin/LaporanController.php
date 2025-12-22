@@ -147,8 +147,15 @@ class LaporanController extends Controller
             }
         }
         
-        $fileName = $laporan->jenis . '_' . $laporan->tanggal->format('Ymd_His');
-        
+        // Safe filename using stored tanggal or now
+        try {
+            $datePart = \Carbon\Carbon::parse($laporan->tanggal)->format('Ymd_His');
+        } catch (\Exception $e) {
+            $datePart = now()->format('Ymd_His');
+        }
+
+        $fileName = $laporan->jenis . '_' . $datePart;
+
         if ($laporan->format === 'PDF') {
             return $this->generatePDF($data, $laporan, $fileName, $laporan->jenis);
         } elseif ($laporan->format === 'Excel') {
@@ -161,11 +168,15 @@ class LaporanController extends Controller
      */
     private function generatePDF($data, $laporanDB, $fileName, $jenis)
     {
+        // Kembalikan HTML seperti perilaku awal (jika PDF generator tidak tersedia atau untuk kesederhanaan).
         $content = $this->buildReportHTML($data, $laporanDB, $jenis);
-        
-        // Return HTML view untuk dicetak
-        return response()->view('exports.laporan_html', ['content' => $content, 'fileName' => $fileName], 200, [
+
+        // Berikan sebagai file download HTML agar pengguna tetap mendapatkan output yang dapat dicetak.
+        $htmlFileName = $fileName . '.html';
+
+        return response($content, 200, [
             'Content-Type' => 'text/html; charset=utf-8',
+            'Content-Disposition' => "attachment; filename=\"{$htmlFileName}\"",
         ]);
     }
 

@@ -90,9 +90,9 @@
 
                             <td style="text-align: center;">
                                 <div class="d-flex gap-2 justify-content-center">
-                                    <button class="btn-action edit" disabled title="Download">
+                                    <a href="{{ route('manajemen.laporan.download', $laporan) }}" class="btn-action edit" title="Download">
                                         <i class="bi bi-download"></i>
-                                    </button>
+                                    </a>
                                 </div>
                             </td>
                         </tr>
