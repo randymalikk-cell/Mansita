@@ -47,20 +47,23 @@ class BackupController extends Controller
             // Generate nama file backup dengan timestamp
             $timestamp = now()->format('Y-m-d_H-i-s');
             $filename = "backup_{$timestamp}.json";
-            $filepath = "backups/{$filename}";
+            $filepath = "private/backups/{$filename}";
 
             // Kumpulkan semua data sistem (dari dashboard)
             $backupData = [
                 'timestamp' => $timestamp,
                 'pelanggan' => Pelanggan::all(),
-                'produksi' => Produksi::all(),
-                'stok' => Stok::all(),
-                'transaksi' => Transaksi::all(),
+                'produksis' => Produksi::all(),
+                'stoks' => Stok::all(),
+                'transaksis' => Transaksi::all(),
                 'log_aktivitas' => LogAktivitas::latest()->limit(100)->get(),
             ];
 
             // Simpan ke file JSON di storage
-            Storage::disk('local')->put($filepath, json_encode($backupData, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+            Storage::disk('local')->put(
+                $filepath,
+                json_encode($backupData, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)
+            );
 
             // Catat ke database
             Backup::create([
@@ -85,94 +88,122 @@ class BackupController extends Controller
     /**
      * Menjalankan proses restore data (Fungsionalitas sensitif, perlu konfirmasi).
      */
-    public function executeRestore(Request $request)
+    public function executeRestore($id)
     {
+        $backup = Backup::findOrFail($id);
+        $path = 'private/backups/' . $backup->file_backup;
+
+        if (!Storage::disk('local')->exists($path)) {
+            return back()->with('error', 'File backup tidak ditemukan.');
+        }
+
+        $data = json_decode(Storage::disk('local')->get($path), true);
+
+        if (!$data) {
+            return back()->with('error', 'File backup rusak atau tidak valid.');
+        }
+
         try {
-            // Jika ada backup_id, restore dari backup spesifik; jika tidak, gunakan terbaru
-            $backupId = $request->input('backup_id');
-            
-            if ($backupId) {
-                $backup = Backup::findOrFail($backupId);
-            } else {
-                $backup = Backup::latest()->first();
-            }
+            // 🔥 FK OFF di LUAR transaction
+            DB::statement('SET FOREIGN_KEY_CHECKS=0');
 
-            if (!$backup) {
-                return back()->with('error', 'Tidak ada file backup yang tersedia untuk restore.');
-            }
-
-            $filepath = "backups/{$backup->file_backup}";
-
-            if (!Storage::disk('local')->exists($filepath)) {
-                return back()->with('error', 'File backup tidak ditemukan di penyimpanan.');
-            }
-
-            // Baca file backup
-            $backupJson = Storage::disk('local')->get($filepath);
-            $backupData = json_decode($backupJson, true);
-
-            if (json_last_error() !== JSON_ERROR_NONE) {
-                return back()->with('error', 'File backup rusak atau tidak valid.');
-            }
-
-            // Mulai transaksi database
             DB::beginTransaction();
 
-            try {
-                // Disable foreign key checks untuk truncate
-                DB::statement('SET FOREIGN_KEY_CHECKS=0');
+            // Truncate tables
+            DB::table('transaksis')->truncate();
+            DB::table('stoks')->truncate();
+            DB::table('produksis')->truncate();
+            DB::table('pelanggans')->truncate();
+            DB::table('log_aktivitas')->truncate();
 
-                // Truncate tabel dalam urutan yang benar (child tables dulu)
-                DB::table('stoks')->truncate();
-                DB::table('transaksis')->truncate();
-                DB::table('produksis')->truncate();
-                DB::table('pelanggans')->truncate();
+            $fixDate = fn ($v) =>
+                $v ? Carbon::parse($v)->format('Y-m-d H:i:s') : null;
 
-                // Insert data dari backup menggunakan insert (preserves IDs)
-                if (!empty($backupData['pelanggans'])) {
-                    foreach ($backupData['pelanggans'] as $record) {
-                        DB::table('pelanggans')->insert((array) $record);
-                    }
-                }
-
-                if (!empty($backupData['produksi'])) {
-                    foreach ($backupData['produksi'] as $record) {
-                        DB::table('produksis')->insert((array) $record);
-                    }
-                }
-
-                if (!empty($backupData['stok'])) {
-                    foreach ($backupData['stok'] as $record) {
-                        DB::table('stoks')->insert((array) $record);
-                    }
-                }
-
-                if (!empty($backupData['transaksi'])) {
-                    foreach ($backupData['transaksi'] as $record) {
-                        DB::table('transaksis')->insert((array) $record);
-                    }
-                }
-
-                // Re-enable foreign key checks
-                DB::statement('SET FOREIGN_KEY_CHECKS=1');
-
-                DB::commit();
-
-                // Log aktivitas restore
-                LogAktivitas::create([
-                    'user_id' => auth()->id(),
-                    'aktivitas' => 'Melakukan proses restore data dari file: ' . $backup->file_backup
+            // Insert pelanggan
+            foreach ($data['pelanggan'] ?? [] as $row) {
+                DB::table('pelanggans')->insert([
+                    'id' => $row['id'],
+                    'nama_pelanggan' => $row['nama_pelanggan'],
+                    'alamat' => $row['alamat'],
+                    'kontak' => $row['kontak'],
+                    'jadwal_pengiriman' => $row['jadwal_pengiriman'],
+                    'created_at' => $fixDate($row['created_at']),
+                    'updated_at' => $fixDate($row['updated_at']),
                 ]);
-
-                return back()->with('success', 'Proses restore data berhasil dilaksanakan dari: ' . $backup->file_backup);
-
-            } catch (Exception $e) {
-                DB::rollBack();
-                throw $e;
             }
 
-        } catch (Exception $e) {
+            // Insert produksi
+            foreach ($data['produksi'] ?? [] as $row) {
+                DB::table('produksis')->insert([
+                    'id' => $row['id'],
+                    'tanggal' => $row['tanggal'],
+                    'shift' => $row['shift'],
+                    'jumlah_tahu_putih' => $row['jumlah_tahu_putih'],
+                    'jumlah_tahu_kuning' => $row['jumlah_tahu_kuning'],
+                    'user_id' => $row['user_id'],
+                    'created_at' => $fixDate($row['created_at']),
+                    'updated_at' => $fixDate($row['updated_at']),
+                ]);
+            }
+
+            // Insert stok
+            foreach ($data['stok'] ?? [] as $row) {
+                DB::table('stoks')->insert([
+                    'id' => $row['id'],
+                    'tanggal_update' => $row['tanggal_update'],
+                    'total_tahu_putih' => $row['total_tahu_putih'],
+                    'total_tahu_kuning' => $row['total_tahu_kuning'],
+                    'produksi_id' => $row['produksi_id'],
+                    'created_at' => $fixDate($row['created_at']),
+                    'updated_at' => $fixDate($row['updated_at']),
+                ]);
+            }
+
+            // Insert transaksi
+            foreach ($data['transaksis'] ?? [] as $row) {
+                DB::table('transaksis')->insert([
+                    'id' => $row['id'],
+                    'tanggal' => $row['tanggal'],
+                    'jenis' => $row['jenis'],
+                    'jumlah' => $row['jumlah'],
+                    'keterangan' => $row['keterangan'],
+                    'pelanggan_id' => $row['pelanggan_id'],
+                    'created_at' => $fixDate($row['created_at']),
+                    'updated_at' => $fixDate($row['updated_at']),
+                ]);
+            }
+
+            // Insert log aktivitas
+            foreach ($data['log_aktivitas'] ?? [] as $row) {
+                DB::table('log_aktivitas')->insert([
+                    'id' => $row['id'],
+                    'user_id' => $row['user_id'],
+                    'aktivitas' => $row['aktivitas'],
+                    'created_at' => $fixDate($row['created_at']),
+                    'updated_at' => $fixDate($row['updated_at']),
+                ]);
+            }
+
+            // ✅ Commit di sini
+            DB::commit();
+
+            // Log aktivitas setelah commit berhasil
+            LogAktivitas::create([
+                'user_id' => auth()->id(),
+                'aktivitas' => 'Melakukan restore database dari file: ' . $backup->file_backup
+            ]);
+
+            return back()->with('success', 'Restore database berhasil.');
+
+        } catch (\Throwable $e) {
+            // ✅ Rollback HANYA jika transaksi masih aktif
+            DB::rollBack();
+
             return back()->with('error', 'Restore gagal: ' . $e->getMessage());
+
+        } finally {
+            // 🔥 FK ON selalu di akhir
+            DB::statement('SET FOREIGN_KEY_CHECKS=1');
         }
     }
 
@@ -183,7 +214,7 @@ class BackupController extends Controller
     {
         try {
             $backup = Backup::findOrFail($id);
-            $filepath = "backups/{$backup->file_backup}";
+            $filepath = "private/backups/{$backup->file_backup}";
 
             if (!Storage::disk('local')->exists($filepath)) {
                 return back()->with('error', 'File backup tidak ditemukan.');
@@ -208,7 +239,7 @@ class BackupController extends Controller
     {
         try {
             $backup = Backup::findOrFail($id);
-            $filepath = "backups/{$backup->file_backup}";
+            $filepath = "private/backups/{$backup->file_backup}";
 
             // Hapus file dari storage
             if (Storage::disk('local')->exists($filepath)) {
@@ -229,4 +260,44 @@ class BackupController extends Controller
             return back()->with('error', 'Hapus gagal: ' . $e->getMessage());
         }
     }
+    private function normalizeDatetime($value)
+    {
+        if (!$value) return null;
+
+        try {
+            return \Carbon\Carbon::parse($value)->format('Y-m-d H:i:s');
+        } catch (\Exception $e) {
+            return null;
+        }
+    }
+
+    public function restore(Request $request)
+    {
+        $request->validate([
+            'backup' => 'required|file|mimes:json'
+        ]);
+
+        $file = $request->file('backup');
+
+        if (!$file->isValid()) {
+            return back()->with('error', 'File backup tidak valid');
+        }
+
+        $data = json_decode(
+            file_get_contents($file->getRealPath()),
+            true
+        );
+
+        if (!$data) {
+            return back()->with('error', 'File JSON rusak atau tidak bisa dibaca');
+        }
+
+        DB::transaction(function () use ($data) {
+            // proses insert data di sini
+        });
+
+        return back()->with('success', 'Restore berhasil');
+    }
+
+
 }

@@ -129,7 +129,8 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::prefix('backup')->name('backup.')->group(function () {
         Route::get('/', [BackupController::class, 'index'])->name('index');      // Daftar riwayat backup
         Route::post('/execute', [BackupController::class, 'executeBackup'])->name('execute'); // Trigger Backup
-        Route::post('/restore', [BackupController::class, 'executeRestore'])->name('restore'); // Trigger Restore
+        Route::post('{id}/restore', [BackupController::class, 'executeRestore'])->name('restore'); // Trigger Restore
+        Route::post('/restore', [BackupController::class, 'restore'])->name('restore.database');
         Route::get('/{id}/download', [BackupController::class, 'download'])->name('download'); // Download backup
         Route::delete('/{id}', [BackupController::class, 'delete'])->name('delete'); // Delete backup
     });
