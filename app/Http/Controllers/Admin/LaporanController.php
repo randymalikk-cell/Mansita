@@ -51,52 +51,57 @@ class LaporanController extends Controller
             'format' => 'required|in:PDF,Excel',
         ]);
 
+        // Mapping jenis untuk database (ENUM aman)
+        $jenisDB = $validated['jenis'] === 'keuangan'
+            ? 'pengeluaran'
+            : 'produksi';
+
         // 1. Ambil Data
-        if ($validated['jenis'] == 'produksi') {
-            $data = Produksi::whereBetween('tanggal', [$validated['tanggal_mulai'], $validated['tanggal_akhir']])
-                            ->get();
+        if ($validated['jenis'] === 'produksi') {
+            $data = Produksi::whereBetween('tanggal', [
+                $validated['tanggal_mulai'],
+                $validated['tanggal_akhir']
+            ])->get();
             $keterangan = 'Laporan Produksi';
         } else {
-            // Laporan Keuangan mencakup semua Transaksi (Penjualan, Pemasukan, Pengeluaran)
-            $data = Transaksi::whereBetween('tanggal', [$validated['tanggal_mulai'], $validated['tanggal_akhir']])
-                             ->get();
+            $data = Transaksi::whereBetween('tanggal', [
+                $validated['tanggal_mulai'],
+                $validated['tanggal_akhir']
+            ])->get();
             $keterangan = 'Laporan Keuangan';
         }
-        
-        // Cek apakah ada data
+
         if ($data->isEmpty()) {
             return back()->with('warning', 'Tidak ada data untuk periode yang dipilih.');
         }
-        
+
         $fileName = $validated['jenis'] . '_' . now()->format('Ymd_His');
 
-        // 2. Simpan entri Laporan ke Database (Audit)
+        // 2. Simpan ke Database (ENUM AMAN)
         $laporanDB = Laporan::create([
-            'jenis' => $validated['jenis'],
+            'jenis' => $jenisDB, // 👈 FIX UTAMA
             'tanggal' => now(),
             'keterangan' => $keterangan . ' (' . $validated['tanggal_mulai'] . ' s.d. ' . $validated['tanggal_akhir'] . ')',
             'format' => $validated['format'],
             'dibuat_oleh_user_id' => auth()->id(),
         ]);
-        
-        \App\Models\LogAktivitas::create(['user_id' => auth()->id(), 'aktivitas' => 'Membuat ' . $keterangan . ' dalam format ' . $validated['format']]);
 
-        // 3. Siapkan ringkasan untuk preview (khusus keuangan)
+        \App\Models\LogAktivitas::create([
+            'user_id' => auth()->id(),
+            'aktivitas' => 'Membuat ' . $keterangan . ' dalam format ' . $validated['format']
+        ]);
+
+        // 3. Ringkasan Keuangan
         $summary = null;
         if ($validated['jenis'] === 'keuangan') {
             $totals = ['penjualan' => 0, 'pemasukan' => 0, 'pengeluaran' => 0];
+
             foreach ($data as $item) {
                 $jenisTrans = strtolower($item->jenis ?? '');
                 $jumlah = (float) ($item->jumlah ?? 0);
-                if ($jenisTrans === 'penjualan') {
-                    $totals['penjualan'] += $jumlah;
-                } elseif ($jenisTrans === 'pemasukan') {
-                    $totals['pemasukan'] += $jumlah;
-                } elseif ($jenisTrans === 'pengeluaran') {
-                    $totals['pengeluaran'] += $jumlah;
-                } else {
-                    // jika ada jenis lain, tambahkan ke pemasukan sebagai fallback
-                    $totals['pemasukan'] += $jumlah;
+
+                if (isset($totals[$jenisTrans])) {
+                    $totals[$jenisTrans] += $jumlah;
                 }
             }
 
@@ -106,9 +111,9 @@ class LaporanController extends Controller
             ];
         }
 
-        // 4. Tampilkan preview laporan
+        // 4. Preview
         $content = $this->buildReportHTML($data, $laporanDB, $validated['jenis']);
-        
+
         return view('manajemen.laporan.preview', [
             'content' => $content,
             'fileName' => $fileName,
@@ -121,6 +126,7 @@ class LaporanController extends Controller
             'tanggal_akhir' => $validated['tanggal_akhir'],
         ]);
     }
+
 
     /**
      * Download laporan dalam format yang dipilih
