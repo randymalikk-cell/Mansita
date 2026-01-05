@@ -103,23 +103,21 @@ class BackupController extends Controller
             return back()->with('error', 'File backup rusak atau tidak valid.');
         }
 
-        try {
-            // 🔥 FK OFF di LUAR transaction
-            DB::statement('SET FOREIGN_KEY_CHECKS=0');
+        DB::statement('SET FOREIGN_KEY_CHECKS=0');
 
+        try {
             DB::beginTransaction();
 
-            // Truncate tables
-            DB::table('transaksis')->truncate();
-            DB::table('stoks')->truncate();
-            DB::table('produksis')->truncate();
-            DB::table('pelanggans')->truncate();
-            DB::table('log_aktivitas')->truncate();
+            // ❗ GUNAKAN DELETE, BUKAN TRUNCATE
+            DB::table('transaksis')->delete();
+            DB::table('stoks')->delete();
+            DB::table('produksis')->delete();
+            DB::table('pelanggans')->delete();
+            DB::table('log_aktivitas')->delete();
 
             $fixDate = fn ($v) =>
                 $v ? Carbon::parse($v)->format('Y-m-d H:i:s') : null;
 
-            // Insert pelanggan
             foreach ($data['pelanggan'] ?? [] as $row) {
                 DB::table('pelanggans')->insert([
                     'id' => $row['id'],
@@ -127,13 +125,12 @@ class BackupController extends Controller
                     'alamat' => $row['alamat'],
                     'kontak' => $row['kontak'],
                     'jadwal_pengiriman' => $row['jadwal_pengiriman'],
-                    'created_at' => $fixDate($row['created_at']),
-                    'updated_at' => $fixDate($row['updated_at']),
+                    'created_at' => $this->normalizeDatetime($row['created_at']),
+                    'updated_at' => $this->normalizeDatetime($row['updated_at']),
                 ]);
             }
 
-            // Insert produksi
-            foreach ($data['produksi'] ?? [] as $row) {
+            foreach ($data['produksis'] ?? [] as $row) {
                 DB::table('produksis')->insert([
                     'id' => $row['id'],
                     'tanggal' => $row['tanggal'],
@@ -141,25 +138,23 @@ class BackupController extends Controller
                     'jumlah_tahu_putih' => $row['jumlah_tahu_putih'],
                     'jumlah_tahu_kuning' => $row['jumlah_tahu_kuning'],
                     'user_id' => $row['user_id'],
-                    'created_at' => $fixDate($row['created_at']),
-                    'updated_at' => $fixDate($row['updated_at']),
+                    'created_at' => $this->normalizeDatetime($row['created_at']),
+                    'updated_at' => $this->normalizeDatetime($row['updated_at']),
                 ]);
             }
 
-            // Insert stok
-            foreach ($data['stok'] ?? [] as $row) {
+            foreach ($data['stoks'] ?? [] as $row) {
                 DB::table('stoks')->insert([
                     'id' => $row['id'],
                     'tanggal_update' => $row['tanggal_update'],
                     'total_tahu_putih' => $row['total_tahu_putih'],
                     'total_tahu_kuning' => $row['total_tahu_kuning'],
                     'produksi_id' => $row['produksi_id'],
-                    'created_at' => $fixDate($row['created_at']),
-                    'updated_at' => $fixDate($row['updated_at']),
+                    'created_at' => $this->normalizeDatetime($row['created_at']),
+                    'updated_at' => $this->normalizeDatetime($row['updated_at']),
                 ]);
             }
 
-            // Insert transaksi
             foreach ($data['transaksis'] ?? [] as $row) {
                 DB::table('transaksis')->insert([
                     'id' => $row['id'],
@@ -168,26 +163,25 @@ class BackupController extends Controller
                     'jumlah' => $row['jumlah'],
                     'keterangan' => $row['keterangan'],
                     'pelanggan_id' => $row['pelanggan_id'],
-                    'created_at' => $fixDate($row['created_at']),
-                    'updated_at' => $fixDate($row['updated_at']),
+                    'created_at' => $this->normalizeDatetime($row['created_at']),
+                    'updated_at' => $this->normalizeDatetime($row['updated_at']),
                 ]);
             }
 
-            // Insert log aktivitas
             foreach ($data['log_aktivitas'] ?? [] as $row) {
                 DB::table('log_aktivitas')->insert([
                     'id' => $row['id'],
                     'user_id' => $row['user_id'],
                     'aktivitas' => $row['aktivitas'],
-                    'created_at' => $fixDate($row['created_at']),
-                    'updated_at' => $fixDate($row['updated_at']),
+                    'created_at' => $this->normalizeDatetime($row['created_at']),
+                    'updated_at' => $this->normalizeDatetime($row['updated_at']),
                 ]);
             }
 
-            // ✅ Commit di sini
+
+
             DB::commit();
 
-            // Log aktivitas setelah commit berhasil
             LogAktivitas::create([
                 'user_id' => auth()->id(),
                 'aktivitas' => 'Melakukan restore database dari file: ' . $backup->file_backup
@@ -196,16 +190,18 @@ class BackupController extends Controller
             return back()->with('success', 'Restore database berhasil.');
 
         } catch (\Throwable $e) {
-            // ✅ Rollback HANYA jika transaksi masih aktif
-            DB::rollBack();
+
+            if (DB::transactionLevel() > 0) {
+                DB::rollBack();
+            }
 
             return back()->with('error', 'Restore gagal: ' . $e->getMessage());
 
         } finally {
-            // 🔥 FK ON selalu di akhir
             DB::statement('SET FOREIGN_KEY_CHECKS=1');
         }
     }
+
 
     /**
      * Download file backup
@@ -265,11 +261,14 @@ class BackupController extends Controller
         if (!$value) return null;
 
         try {
-            return \Carbon\Carbon::parse($value)->format('Y-m-d H:i:s');
+            return \Carbon\Carbon::parse($value)
+                ->setTimezone(config('app.timezone'))
+                ->format('Y-m-d H:i:s');
         } catch (\Exception $e) {
             return null;
         }
     }
+
 
     public function restore(Request $request)
     {

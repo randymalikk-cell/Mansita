@@ -135,10 +135,10 @@
 </div>
 
     <!-- Aktivitas -->
-    <div class="bg-white p-6 rounded-lg shadow">
+    <div class="bg-white p-6 rounded-lg shadow h-[400px] flex flex-col">
         <h2 class="font-semibold mb-4">Aktivitas Terbaru</h2>
 
-        <ul class="space-y-4 text-sm">
+        <ul class="space-y-4 text-sm overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
             @forelse ($aktivitasTerbaru as $item)
                 <li>
                     <p class="font-semibold">{{ $item->aktivitas }}</p>

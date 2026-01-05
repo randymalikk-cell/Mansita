@@ -14,7 +14,7 @@
                 <div>
                     <p class="text-gray-600 text-sm">Total Pengguna</p>
                     <p class="text-3xl font-bold text-gray-900">{{ \App\Models\User::count() }}</p>
-                </div>
+                 </div>
                 <i class="bi bi-people text-3xl text-blue-500 opacity-50"></i>
             </div>
         </div>
